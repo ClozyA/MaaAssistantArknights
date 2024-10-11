@@ -45,7 +45,7 @@ jobs:
           submodules: recursive
           #ref: ${{ inputs.ref }}
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
       - name: Checkout ref
         run: |
@@ -99,7 +99,7 @@ jobs:
           python3 tools/ChangelogGenerator/changelog_generator.py --latest "${{ steps.set_tag.outputs.latest_tag }}" --tag "${{ steps.set_tag.outputs.tag }}"
           Get-Content .\changelog.md | Select-Object -Skip 2 | Out-File -FilePath changelog_notag.md -Encoding utf8
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
           PYTHONIOENCODING: "utf-8"
 
       - name: Read Changelog to variable
@@ -125,7 +125,7 @@ jobs:
         run: |
           python3 maadeps-download.py ${{ matrix.lowercase_target }}-windows
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
       - name: Taggify Version
         run: |
@@ -147,7 +147,7 @@ jobs:
           $node.AssemblyVersion = $match
           $csproj.Save($csprojPath)
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
       - name: Run './build.cmd DevBuild'
         run: |
@@ -158,7 +158,7 @@ jobs:
           ./build.cmd DevBuild
         env:
           Reason: "Build nightly version"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
       - name: Upload MAA to Github
         uses: actions/upload-artifact@v4
@@ -239,7 +239,7 @@ jobs:
 
           echo "release_tag=$(head -n 1 ./config)" >> $GITHUB_ENV
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
       - name: Build OTA
         run: |
@@ -253,7 +253,7 @@ jobs:
           $GITHUB_WORKSPACE/MaaAssistantArknights/tools/OTAPacker/build.sh 'MaaAssistantArknights/MaaAssistantArknights' ./config ${{ matrix.target }} "${{ github.repository_owner }}/MaaRelease"
           mv -v ${{ needs.build-win-nightly.outputs.tag }}/*.zip ./MAA-${{ env.release_tag }}-win-${{ matrix.target }}.zip
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
       - name: Upload to MaaRelease
         uses: svenstaro/upload-release-action@v2

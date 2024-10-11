@@ -274,7 +274,7 @@ jobs:
 
       - name: Setup release mirror
         run: |
-          gh workflow --repo ClozyA/MaaRelease run .github/workflows/release-mirrors.yml
+          gh workflow --repo ClozyA/MaaRelease run release-mirrors.yml
           
         env:
           GH_TOKEN: ${{ secrets.MISTEOWORKFLOW }}

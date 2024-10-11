@@ -271,10 +271,3 @@ jobs:
             ${{ needs.build-win-nightly.outputs.changelog }}
 
             **Full Changelog**: [${{ needs.build-win-nightly.outputs.pre_version }} -> ${{ needs.build-win-nightly.outputs.main_tag_name }}](https://github.com/${{ github.repository }}/compare/${{ needs.build-win-nightly.outputs.pre_version }}...${{ needs.build-win-nightly.outputs.main_tag_name }})
-
-      - name: Setup release mirror
-        run: |
-          gh workflow --repo ClozyA/MaaRelease run release-mirrors.yml
-          
-        env:
-          GH_TOKEN: ${{ secrets.MISTEOWORKFLOW }}

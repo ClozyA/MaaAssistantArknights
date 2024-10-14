@@ -12,28 +12,19 @@
 // </copyright>
 
 using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using MaaWpfGui.Constants;
 using MaaWpfGui.Helper;
-using MaaWpfGui.Services.Web;
 using Serilog;
-using System.Net.Http;
-using System.Net.Http.Headers;
 
 namespace MaaWpfGui.Services.Notification
 {
     public class ServerChanNotificationProvider : IExternalNotificationProvider
     {
-        private readonly IHttpService _httpService;
-
         private readonly ILogger _logger = Log.ForContext<ServerChanNotificationProvider>();
-
-        public ServerChanNotificationProvider(IHttpService httpService)
-        {
-            _httpService = httpService;
-        }
 
         public async Task<bool> SendAsync(string title, string content)
         {
@@ -47,40 +38,42 @@ namespace MaaWpfGui.Services.Notification
             var postContent = new ServerChanPostContent { Title = title, Content = content };
 
             // 创建 HttpRequestMessage 并设置请求头
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(url))
+            using (var client = new HttpClient())
             {
-                Content = new StringContent(JsonSerializer.Serialize(postContent), System.Text.Encoding.UTF8, "application/json")
-            };
-            
-            // 明确添加 JSON 的请求头
-            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(url))
+                {
+                    Content = new StringContent(JsonSerializer.Serialize(postContent), System.Text.Encoding.UTF8, "application/json")
+                };
+                requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            // 发送请求
-            var response = await _httpService.SendAsync(requestMessage);
+                // 发送请求
+                var response = await client.SendAsync(requestMessage);
+                var responseString = await response.Content.ReadAsStringAsync();
 
-            var responseRoot = JsonDocument.Parse(response).RootElement;
-            var hasCodeProperty = responseRoot.TryGetProperty("code", out var codeElement);
+                var responseRoot = JsonDocument.Parse(responseString).RootElement;
+                var hasCodeProperty = responseRoot.TryGetProperty("code", out var codeElement);
 
-            if (!hasCodeProperty)
-            {
-                _logger.Warning("Failed to send ServerChan notification, unknown response: {Response}", response);
+                if (!hasCodeProperty)
+                {
+                    _logger.Warning("Failed to send ServerChan notification, unknown response: {Response}", responseString);
+                    return false;
+                }
+
+                var hasCode = codeElement.TryGetInt32(out var code);
+                if (!hasCode)
+                {
+                    _logger.Warning("Failed to send ServerChan notification, unknown code in response: {Response}", responseString);
+                    return false;
+                }
+
+                if (code == 0)
+                {
+                    return true;
+                }
+
+                _logger.Warning("Failed to send ServerChan notification, code: {Code}", code);
                 return false;
             }
-
-            var hasCode = codeElement.TryGetInt32(out var code);
-            if (!hasCode)
-            {
-                _logger.Warning("Failed to send ServerChan notification, unknown code in response: {Response}", response);
-                return false;
-            }
-
-            if (code == 0)
-            {
-                return true;
-            }
-
-            _logger.Warning("Failed to send ServerChan notification, code: {Code}", code);
-            return false;
         }
 
         private class ServerChanPostContent

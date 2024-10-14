@@ -19,6 +19,8 @@ using MaaWpfGui.Constants;
 using MaaWpfGui.Helper;
 using MaaWpfGui.Services.Web;
 using Serilog;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace MaaWpfGui.Services.Notification
 {
@@ -42,17 +44,19 @@ namespace MaaWpfGui.Services.Notification
                 ? $"https://{sendKey}.push.ft07.com/send" 
                 : $"https://sctapi.ftqq.com/{sendKey}.send";
 
-            // 添加header，尝试修复 data format error
-            var response = await _httpService.PostAsJsonAsync(
-                new Uri(url),
-                new ServerChanPostContent { Title = title, Content = content },
-                headers);
+            var postContent = new ServerChanPostContent { Title = title, Content = content };
 
-            // 设置请求头
-            var headers = new Dictionary<string, string>
+            // 创建 HttpRequestMessage 并设置请求头
+            var requestMessage = new HttpRequestMessage(HttpMethod.Post, new Uri(url))
             {
-                { "Content-Type", "application/json;charset=utf-8" }
+                Content = new StringContent(JsonSerializer.Serialize(postContent), System.Text.Encoding.UTF8, "application/json")
             };
+            
+            // 明确添加 JSON 的请求头
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            // 发送请求
+            var response = await _httpService.SendAsync(requestMessage);
 
             var responseRoot = JsonDocument.Parse(response).RootElement;
             var hasCodeProperty = responseRoot.TryGetProperty("code", out var codeElement);
@@ -81,15 +85,10 @@ namespace MaaWpfGui.Services.Notification
 
         private class ServerChanPostContent
         {
-            // 这两个没用过，不知道有没有用，之后再看看
             [JsonPropertyName("title")]
-
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string Title { get; set; }
 
             [JsonPropertyName("desp")]
-
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string Content { get; set; }
         }
     }

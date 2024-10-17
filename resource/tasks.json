@@ -2162,7 +2162,10 @@
         "roi": [570, 165, 140, 80]
     },
     "AccountManagerBili": {
-        "roi": [565, 160, 145, 50]
+        "Doc": "b 服的标题大小会跟着 dpi 变，现在还没特征点匹配，识别文字",
+        "algorithm": "OcrDetect",
+        "text": ["登录记录"],
+        "roi": [237, 50, 771, 242]
     },
     "AccountCurrentOCR": {
         "algorithm": "OcrDetect",
@@ -2173,11 +2176,14 @@
     "AccountCurrentOCRBili": {
         "algorithm": "OcrDetect",
         "text": [],
-        "roi": [525, 280, 150, 25]
+        "roi": [407, 239, 468, 109]
     },
     "AccountManagerLoginButton": {
         "action": "ClickSelf",
-        "roi": [430, 410, 430, 60]
+        "algorithm": "OcrDetect",
+        "text": ["登录"],
+        "fullMatch": true,
+        "roi": [423, 329, 448, 147]
     },
     "AccountManagerLoginButtonBili": {
         "baseTask": "AccountManagerLoginButton",
@@ -2188,8 +2194,10 @@
         "roi": [770, 315, 85, 65]
     },
     "AccountManagerListAccountBili": {
-        "baseTask": "AccountManagerListAccount",
-        "roi": [770, 270, 60, 70]
+        "action": "ClickSelf",
+        "algorithm": "OcrDetect",
+        "text": ["上次登录"],
+        "roi": [311, 167, 662, 266]
     },
     "AccountManagerTrashButton": {
         "roi": [790, 375, 50, 175]
@@ -12381,9 +12389,13 @@
         "doc": "点击右下角对话选项位置，跳过引导对话",
         "template": "DialogueLog",
         "roi": [27, 14, 64, 51],
-        "action": "ClickRect",
-        "specificRect": [901, 422, 360, 51],
+        "sub": ["Tales@RA@PNS-OpeningDialogueClick*10"],
         "next": ["Tales@RA@PNS-OpeningDialogue", "Tales@RA@PNS-LeaveBaseCamp"]
+    },
+    "Tales@RA@PNS-OpeningDialogueClick": {
+        "algorithm": "JustReturn",
+        "action": "ClickRect",
+        "specificRect": [901, 422, 360, 51]
     },
     "Tales@RA@PNS-ProsperityBelowLimit": {
         "doc": "已完成生存周期, 生息点数未达到上限, 点击 <点击任意处继续> 文字位置",

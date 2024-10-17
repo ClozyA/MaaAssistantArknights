@@ -11,7 +11,7 @@
                     "is_key": true,
                     "is_start": true,
                     "recruit_priority": 999,
-                    "promote_priority": 1000
+                    "promote_priority": 114514
                 }
             ]
         },
@@ -3887,7 +3887,7 @@
     "team_complete_condition": [
         {
             "groups": ["益达", "玛恩纳", "水陈"],
-            "threshold": 1
+            "threshold": 2
         },
         {
             "groups": ["重装", "近卫", "凯尔希"],
